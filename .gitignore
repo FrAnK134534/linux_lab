@@ -13,5 +13,11 @@ partA/out_sync.bin
 partA/*.csv
 partA/testfile.bin
 
+# Part B local benchmark outputs
+partB/poll_server
+partB/threadpool_server
+partB/client_bench
+partB/*.csv
+
 # OS/editor files
 .DS_Store
