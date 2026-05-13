@@ -1,0 +1,17 @@
+# Build outputs
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+
+# Part A local benchmark outputs
+partA/io_bench
+partA/test_write.bin
+partA/out.bin
+partA/out_sync.bin
+partA/*.csv
+partA/testfile.bin
+
+# OS/editor files
+.DS_Store
