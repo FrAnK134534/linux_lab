@@ -29,3 +29,4 @@ This repository contains the source code and notes for System Programming Lab 1.
 
 - Part A benchmark scaffold and implementation are available in `partA/`.
 - Part B contains baseline `poll(2)` and thread-pool TCP echo servers plus a benchmark client.
+- The actual experiment workflow and current result-file notes are recorded in `docs/EXPERIMENT_FLOW.md`.
