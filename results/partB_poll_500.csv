@@ -1,0 +1,2 @@
+server,connections,msg_size,total_requests,total_time_sec,throughput_req_s,avg_ms,p50_ms,p95_ms,p99_ms
+poll,500,64,500000,4.422673,113053.79,4.186389,4.269276,5.057813,7.717189
