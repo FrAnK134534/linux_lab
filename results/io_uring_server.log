@@ -1,0 +1,2 @@
+io_uring_server requires Linux with liburing development files.
+Install liburing-dev/liburing-devel and rebuild with make.
