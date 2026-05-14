@@ -1,0 +1,16 @@
+NAME                      ROTA TYPE   SIZE MODEL
+loop0                        0 loop  63.3M 
+loop1                        0 loop  38.8M 
+loop2                        0 loop  91.9M 
+loop3                        0 loop  44.3M 
+loop4                        0 loop  63.7M 
+loop5                        0 loop  91.9M 
+sda                          0 disk 931.5G WDC_WDS100T2G0A-
+└─sda1                       0 part 931.5G 
+  └─ubuntu--vg-ubuntu--lv    0 lvm    1.8T 
+nvme0n1                      0 disk 894.3G Dell DC NVMe PE8010 RI U.2 960GB
+├─nvme0n1p1                  0 part   1.1G 
+├─nvme0n1p2                  0 part     2G 
+└─nvme0n1p3                  0 part 891.2G 
+  └─ubuntu--vg-ubuntu--lv    0 lvm    1.8T 
+pmem0                        0 disk 496.1G 

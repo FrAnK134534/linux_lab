@@ -1,0 +1,2 @@
+Filesystem                        Type  1K-blocks       Used Available Use% Mounted on
+/dev/mapper/ubuntu--vg-ubuntu--lv ext4 1880200276 1225559920 568832300  69% /
