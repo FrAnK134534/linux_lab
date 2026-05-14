@@ -165,33 +165,6 @@ sleep 1
 kill $(cat ../results/epoll_server.pid)
 ```
 
-Optional Linux `io_uring` benchmark:
-
-```sh
-sudo apt-get install liburing-dev
-make clean
-make
-```
-
-If liburing is installed but not detected through `pkg-config`, use:
-
-```sh
-make clean
-make HAVE_LIBURING=1
-```
-
-```sh
-./io_uring_server 8083 256 4096 > ../results/io_uring_server.log 2>&1 &
-echo $! > ../results/io_uring_server.pid
-sleep 1
-
-./client_bench 127.0.0.1 8083 10 1000 64 io_uring > ../results/partB_io_uring_10.csv
-./client_bench 127.0.0.1 8083 100 1000 64 io_uring > ../results/partB_io_uring_100.csv
-./client_bench 127.0.0.1 8083 500 1000 64 io_uring > ../results/partB_io_uring_500.csv
-
-kill $(cat ../results/io_uring_server.pid)
-```
-
 Client output columns:
 
 ```text

@@ -17,7 +17,6 @@ partA/testfile.bin
 partB/poll_server
 partB/threadpool_server
 partB/epoll_server
-partB/io_uring_server
 partB/client_bench
 partB/*.csv
 

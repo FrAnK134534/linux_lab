@@ -19,7 +19,6 @@ This repository contains the source code and notes for System Programming Lab 1.
 │   │   ├── poll_server.c
 │   │   ├── threadpool_server.c
 │   │   ├── epoll_server.c
-│   │   ├── io_uring_server.c
 │   │   └── client_bench.c
 │   ├── Makefile
 │   └── README.md
@@ -30,5 +29,5 @@ This repository contains the source code and notes for System Programming Lab 1.
 ## Current Progress
 
 - Part A benchmark scaffold and implementation are available in `partA/`.
-- Part B contains `poll(2)`, thread-pool, Linux `epoll(7)`, and Linux `io_uring` TCP echo servers plus a benchmark client.
+- Part B contains `poll(2)`, thread-pool, and Linux `epoll(7)` TCP echo servers plus a benchmark client.
 - The actual experiment workflow and current result-file notes are recorded in `docs/EXPERIMENT_FLOW.md`.
