@@ -28,6 +28,15 @@ def read_csv(path: Path) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
+def format_table_cell(header: str, value: str) -> str:
+    if header in {"real_sec", "user_sec", "sys_sec"}:
+        try:
+            return f"{float(value):.6f}"
+        except ValueError:
+            return value
+    return value
+
+
 def write_csv_table(path: Path, max_rows: int | None = None) -> str:
     rows: list[list[str]] = []
     with path.open(newline="", encoding="utf-8") as f:
@@ -37,13 +46,21 @@ def write_csv_table(path: Path, max_rows: int | None = None) -> str:
     if max_rows is not None:
         rows = rows[: max_rows + 1]
     header = rows[0]
-    body = rows[1:]
-    lines = [
-        "| " + " | ".join(header) + " |",
-        "| " + " | ".join(["---"] * len(header)) + " |",
+    body = [
+        [format_table_cell(col, value) for col, value in zip(header, row)]
+        for row in rows[1:]
     ]
+    widths = [
+        max(len(header[i]), *(len(row[i]) for row in body))
+        for i in range(len(header))
+    ]
+
+    def fmt_row(row: list[str]) -> str:
+        return "| " + " | ".join(row[i].ljust(widths[i]) for i in range(len(row))) + " |"
+
+    lines = [fmt_row(header), "| " + " | ".join("-" * widths[i] for i in range(len(header))) + " |"]
     for row in body:
-        lines.append("| " + " | ".join(row) + " |")
+        lines.append(fmt_row(row))
     return "\n".join(lines)
 
 
