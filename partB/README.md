@@ -34,6 +34,45 @@ Arguments:
 ./threadpool_server [port] [workers] [queue_capacity] [buffer_size]
 ```
 
+Run the Linux `epoll(7)` based server:
+
+```sh
+./epoll_server 8082 2048 4096
+```
+
+Arguments:
+
+```text
+./epoll_server [port] [max_events] [buffer_size]
+```
+
+Run the Linux `io_uring` based server:
+
+```sh
+./io_uring_server 8083 256 4096
+```
+
+Arguments:
+
+```text
+./io_uring_server [port] [queue_depth] [buffer_size]
+```
+
+`io_uring_server` needs Linux and liburing development files. On Debian/Ubuntu:
+
+```sh
+sudo apt-get install liburing-dev
+make clean
+make
+```
+
+If `pkg-config` is unavailable but liburing is installed, build explicitly:
+
+```sh
+make clean
+make HAVE_LIBURING=1
+```
+
 ## Benchmark Client
 
 ```sh
@@ -70,6 +109,7 @@ Terminal 2:
 ## Notes
 
 - `poll_server` is a single-threaded multiplexing echo server.
+- `epoll_server` is a Linux-only single-threaded echo server using `epoll`.
+- `io_uring_server` is a Linux-only echo server using liburing completion events.
 - `threadpool_server` accepts connections in the main thread and assigns each connection to a worker thread.
 - Both servers intentionally keep the protocol simple: every request is echoed back byte-for-byte.
-- An optional Linux-only `epoll_server` can be added later for extra comparison.
