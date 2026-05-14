@@ -1,4 +1,4 @@
-gitmethod,bufsize,bytes,real_sec,user_sec,sys_sec
+method,bufsize,bytes,real_sec,user_sec,sys_sec
 write,1,1048576,1.105486069,0.066258000,1.039201000
 write,2,1048576,0.540919021,0.015797000,0.524927000
 write,4,1048576,0.259633752,0.007970000,0.251427000
