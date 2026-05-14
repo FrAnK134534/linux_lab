@@ -2,6 +2,14 @@
 
 This directory contains the baseline concurrent TCP echo servers and benchmark client for Lab 1 Part B.
 
+The final Part B paper is available as:
+
+```text
+paper.pdf
+paper.docx
+paper.md
+```
+
 ## Build
 
 ```sh

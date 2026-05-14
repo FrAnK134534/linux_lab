@@ -188,6 +188,9 @@ results/partB_poll_500.csv
 results/partB_threadpool_10.csv
 results/partB_threadpool_100.csv
 results/partB_threadpool_500.csv
+results/partB_epoll_10.csv
+results/partB_epoll_100.csv
+results/partB_epoll_500.csv
 ```
 
 `partA_all_write.csv` contains the completed 500 MB ordinary `write` data. It does not contain `write_sync` data because the original full `all_write` run was stopped before the `O_SYNC` part became practical.
@@ -213,6 +216,7 @@ Part B:
 
 - `poll` throughput was about 79.9k, 115.2k, and 113.1k requests/s for 10, 100, and 500 connections.
 - Thread-pool throughput was about 68.9k, 114.4k, and 119.7k requests/s for 10, 100, and 500 connections.
+- `epoll` throughput was about 80.9k, 118.2k, and 100.8k requests/s for 10, 100, and 500 connections.
 - The thread-pool average latency is higher than P99 in some runs. This can happen because a small number of connection-level queue waits become extreme outliers and raise the average, while they occupy less than 1% of all requests and therefore may not appear in P99.
 
 ## 6. Cleanup
