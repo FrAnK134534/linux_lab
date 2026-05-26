@@ -247,6 +247,12 @@ method,bufsize,bytes,real_sec,user_sec,sys_sec
 
 本实验结果为服务器上的一次完整运行。由于 UNIX/Linux 文件 I/O 会受到 page cache、后台写回和系统负载影响，报告重点分析不同接口和 BUFFSIZE 的数量级趋势，而不是把某个单点时间视为硬件绝对性能。
 
+### 3.1.1 实验取舍
+
+这组实验最容易被“小 BUFFSIZE”拖慢。以 500 MB 文件为例，`bufsize=1` 意味着 5 亿多次系统调用；如果再叠加 `O_SYNC`，实验时间会从分钟级膨胀到不可接受的程度。因此读实验严格使用 500 MB 文件，保证读取接口的比较有足够数据量；普通 `write()` 也保留了一组 500 MB 数据，用来观察系统调用次数下降后的整体趋势；`O_SYNC write` 则使用 64 KB 和 1 MB 两组较小写入量，重点比较相同 BUFFSIZE 序列下同步写语义带来的额外成本。
+
+这个取舍不是为了回避慢结果，而是为了让实验能够完整覆盖所有 BUFFSIZE。后面的分析也不会把 1 MB 的 `O_SYNC` 结果和 500 MB 的普通 `write` 做绝对时间比较，而是主要看同一写入量下普通写与同步写的相对差异。
+
 ### 3.2 缓冲区大小
 
 按照实验要求，使用以下 BUFFSIZE：
@@ -310,6 +316,8 @@ method,bufsize,bytes,real_sec,user_sec,sys_sec
 
 `fread()` 的最优结果略好于 `my_fread()`，原因可能包括：标准库实现经过高度优化；stdio 缓冲、内部拷贝和分支处理更成熟；而本实验中的 `my_fread()` 是教学目的的简化实现，主要用于验证缓冲思想，而非替代 libc。
 
+还有一个细节值得注意：`my_fread(bufsize=1)` 的表现接近逐字节 `read()`，因为外部每次只请求 1 字节，内部缓冲区容量也随测试 BUFFSIZE 设置为 1 字节，此时无法发挥“先批量读入、再在用户态分发”的优势。这说明缓冲机制本身并不是魔法，关键仍在于每次进入内核时能带回足够多的数据。
+
 ### 4.4 普通 write
 
 ![write 500MB]({write_full_fig})
@@ -325,6 +333,8 @@ method,bufsize,bytes,real_sec,user_sec,sys_sec
 1 MB 对比实验中，普通 `write(bufsize=1)` real time 为 {fmt_seconds(write_1mb_df.iloc[0].real_sec)} s，而 `write_sync(bufsize=1)` real time 为 {fmt_seconds(sync_worst.real_sec)} s。`O_SYNC` 要求写操作具备同步语义，小缓冲区下相当于把大量细碎写入逐次推入更重的同步路径，因此时间急剧上升。
 
 当 BUFFSIZE 增大时，`O_SYNC` 的耗时快速下降。`write_sync` 的最优结果为 {fmt_seconds(sync_best.real_sec)} s，出现在 BUFFSIZE={int(sync_best.bufsize)}。这说明 `O_SYNC` 的主要代价不是简单的用户态函数调用，而是同步提交次数。把多个字节合并进一次较大的 `write()` 可以显著减少同步操作次数。
+
+本次实验中 `write_sync` 的 `sys_sec` 明显小于 `real_sec`，尤其在小 BUFFSIZE 下更明显。这说明进程有大量时间并不是在用户态计算或内核态消耗 CPU，而是在等待同步写路径完成。普通 `write()` 则更多体现系统调用和内核页缓存路径开销。
 
 ## 5. 原理分析与讨论
 

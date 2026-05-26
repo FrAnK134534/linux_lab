@@ -52,9 +52,13 @@ user thread -> blocking read/write -> kernel waits for I/O -> wakeup -> user han
 
 ### 3.4 异步 I/O
 
-异步 I/O 的目标是让应用提交 I/O 请求后不阻塞等待，等内核完成后再通过信号、回调或完成队列通知用户态。POSIX AIO 提供 `aio_read()`、`aio_write()` 等接口，但在 Linux 网络 I/O 实践中使用并不广泛。Linux `io_uring` 通过共享环形队列提交和完成请求，减少系统调用次数并支持批量操作，在高性能存储和网络场景中有很强潜力。
+异步 I/O 的目标是让应用提交 I/O 请求后不阻塞等待，等内核完成后再通过信号、回调或完成队列通知用户态。POSIX AIO 提供 `aio_read()`、`aio_write()`、`aio_error()` 和 `aio_return()` 等接口。应用先构造 `aiocb` 描述一次读写，再提交给内核；之后可以轮询状态，也可以通过信号通知获得完成事件。这个模型在接口层面比较清楚，但在 Linux 实践中，POSIX AIO 对普通文件和网络 I/O 的支持、性能表现和可移植性都不算理想，因此高性能网络服务器中并不常把它作为首选方案。
 
-多路复用和异步 I/O 的本质区别在于：多路复用通常通知“fd 已就绪”，应用随后自己执行 `read/write`；异步 I/O 则提交“具体 I/O 操作”，内核完成后通知“操作已完成”。
+Linux `io_uring` 是更现代的异步 I/O 接口。它在用户态和内核态之间共享两个环形队列：submission queue 用来提交请求，completion queue 用来回收完成事件。应用可以一次提交多项操作，也可以一次收割多个完成事件，从而减少系统调用次数。对于磁盘 I/O、网络 I/O、批量 accept/read/write 等场景，`io_uring` 的优势在于把“提交请求”和“等待完成”组织成更低开销的队列模型，也更容易做批处理。
+
+多路复用和异步 I/O 的本质区别在于：多路复用通常通知“fd 已经可读或可写”，应用随后自己执行 `read/write`；异步 I/O 则提交“具体 I/O 操作”，内核完成后通知“这次操作已经完成”。换句话说，`poll/epoll` 更像是在问内核“现在谁能做 I/O”，而异步 I/O 更像是告诉内核“帮我做这次 I/O，完成后再告诉我”。这个区别会影响服务器结构：多路复用服务器的事件循环里仍然有显式的读写逻辑；异步 I/O 服务器则需要围绕 completion event 组织状态机。
+
+本文没有实现 `io_uring_server`。一方面是该项在 Lab 中属于可选加分项；另一方面，`io_uring` 的正确实现需要更完整的连接状态、缓冲区生命周期和错误处理设计，否则很容易得到一个能运行但不具备代表性的简化版本。因此本文把实验重点放在 `poll`、线程池和 `epoll` 三个可直接对比的模型上，把 `io_uring` 保留在原理讨论和后续改进方向中。
 
 ### 3.5 多线程 I/O
 
@@ -183,12 +187,14 @@ P99 反映尾部延迟。`poll` 在 500 并发下 P99 达到 7.717189 ms，`epol
 
 ## 参考文献
 
-[1] W. Richard Stevens, Stephen A. Rago. *Advanced Programming in the UNIX Environment*. Addison-Wesley.
+[1] W. R. Stevens and S. A. Rago, *Advanced Programming in the UNIX Environment*, 3rd ed. Addison-Wesley, 2013.
 
-[2] W. Richard Stevens, Bill Fenner, Andrew M. Rudoff. *UNIX Network Programming, Volume 1: The Sockets Networking API*. Addison-Wesley.
+[2] W. R. Stevens, B. Fenner, and A. M. Rudoff, *UNIX Network Programming, Volume 1: The Sockets Networking API*, 3rd ed. Addison-Wesley, 2003.
 
-[3] Linux man-pages project. `poll(2)` and `epoll(7)` manual pages.
+[3] Linux man-pages project, “poll(2) — Linux manual page.” [Online]. Available: https://man7.org/linux/man-pages/man2/poll.2.html. Accessed: 2026-05-26.
 
-[4] Nginx Documentation. Nginx architecture and event processing model.
+[4] Linux man-pages project, “epoll(7) — Linux manual page.” [Online]. Available: https://man7.org/linux/man-pages/man7/epoll.7.html. Accessed: 2026-05-26.
 
-[5] Redis Documentation. Redis event loop and networking implementation notes.
+[5] Redis Documentation, “Event library.” [Online]. Available: https://redis.io/docs/latest/operate/oss_and_stack/reference/internals/internals-rediseventlib/. Accessed: 2026-05-26.
+
+[6] Nginx, Inc., “Nginx documentation.” [Online]. Available: https://nginx.org/en/docs/. Accessed: 2026-05-26.
